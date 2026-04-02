@@ -22,6 +22,12 @@ app.get('/', (req, res) => res.json({ message: 'Blood Donor API running' }));
 // Connect to MongoDB and start server
 const PORT = process.env.PORT || 5000;
 
+// Keep-alive ping for Render free tier
+const https = require('https');
+setInterval(() => {
+  https.get('https://blood-doner-web.onrender.com/');
+}, 14 * 60 * 1000); // every 14 minutes
+
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => {
