@@ -5,7 +5,6 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const https = require('https');
 
-// Route imports
 const authRoutes = require('./routes/authRoutes');
 const donorRoutes = require('./routes/donorRoutes');
 
@@ -15,30 +14,28 @@ const app = express();
 // CORS Setup
 // =======================
 
-// FRONTEND_URL can be a single URL or comma-separated list
+// FRONTEND_URL can be comma-separated list of allowed frontends
 // e.g., "https://blood-doner-web.vercel.app,https://blood-doner-branch.vercel.app"
 const allowedOrigins = process.env.FRONTEND_URL
   ? process.env.FRONTEND_URL.split(',').map(url => url.trim())
   : [];
 
-app.use(cors({
+const corsOptions = {
   origin: function(origin, callback) {
-    if (!origin) return callback(null, true); // allow server-to-server or curl requests
-    if (allowedOrigins.indexOf(origin) === -1) {
-      return callback(new Error(`CORS policy: ${origin} not allowed`), false);
-    }
-    return callback(null, true);
+    if (!origin) return callback(null, true); // server-to-server requests
+    if (allowedOrigins.includes(origin)) return callback(null, true);
+    console.warn(`Blocked CORS request from origin: ${origin}`);
+    return callback(null, false); // respond with 200 but no headers
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-}));
+};
+
+// Use CORS middleware for all requests
+app.use(cors(corsOptions));
 
 // Handle preflight requests
-app.options('*', cors({
-  origin: allowedOrigins,
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-}));
+app.options('*', cors(corsOptions));
 
 // =======================
 // Middleware
@@ -69,14 +66,11 @@ mongoose
   .then(() => {
     console.log('MongoDB connected');
 
-    // Start server
     app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
     });
 
-    // =======================
     // Keep-alive ping for Render free tier
-    // =======================
     setInterval(() => {
       try {
         https.get('https://blood-doner-web.onrender.com/');
