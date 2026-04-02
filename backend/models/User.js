@@ -6,12 +6,12 @@ const userSchema = new mongoose.Schema(
     name: { type: String, required: [true, 'Name is required'], trim: true },
     email: { type: String, required: [true, 'Email is required'], unique: true, lowercase: true, trim: true },
     contact: {
-      type: String,
+      type: Number,
       validate: {
         validator: v => /^\d{10}$/.test(v),
         message: props => `${props.value} is not a valid 10-digit number`
       },
-      required: [true, 'Contact is required']
+     
     },
     password: { type: String, required: [true, 'Password is required'], minlength: 6 },
     bloodGroup: { type: String, required: [true, 'Blood group is required'], enum: ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'] },
