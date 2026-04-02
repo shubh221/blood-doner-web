@@ -10,32 +10,29 @@ const donorRoutes = require('./routes/donorRoutes');
 
 const app = express();
 
-// =======================
-// CORS Setup
-// =======================
+const allowedOrigins = [
+  'https://blood-doner-web.vercel.app',
+  'https://blood-doner-web-git-main-rentroo.vercel.app', 
+  'https://blood-doner-5db1ekjcm-rentroo.vercel.app'
+];
 
-// FRONTEND_URL can be comma-separated list of allowed frontends
-// e.g., "https://blood-doner-web.vercel.app,https://blood-doner-branch.vercel.app"
-const allowedOrigins = process.env.FRONTEND_URL
-  ? process.env.FRONTEND_URL.split(',').map(url => url.trim())
-  : [];
-
-const corsOptions = {
+app.use(cors({
   origin: function(origin, callback) {
-    if (!origin) return callback(null, true); // server-to-server requests
-    if (allowedOrigins.includes(origin)) return callback(null, true);
-    console.warn(`Blocked CORS request from origin: ${origin}`);
-    return callback(null, false); // respond with 200 but no headers
+    if (!origin) return callback(null, true); // server-to-server
+    if (allowedOrigins.indexOf(origin) === -1) {
+      return callback(new Error(`CORS policy: ${origin} not allowed`), false);
+    }
+    return callback(null, true);
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-};
+}));
 
-// Use CORS middleware for all requests
-app.use(cors(corsOptions));
-
-// Handle preflight requests
-app.options('*', cors(corsOptions));
+app.options('*', cors({
+  origin: allowedOrigins,
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+}));
 
 // =======================
 // Middleware
