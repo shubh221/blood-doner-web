@@ -11,10 +11,29 @@ const app = express();
 // Middleware
 // app.use(cors());
 // const cors = require("cors");
+const allowedOrigins = [
+  "https://blood-doner-web.vercel.app",
+  "https://blood-doner-5db1ekjcm-rentroo.vercel.app"
+];
+
 app.use(cors({
-  origin: "https://blood-doner-web.vercel.app", // your frontend
-  credentials: true, // allow cookies/auth headers
-  methods: ['GET','POST','PUT','DELETE','OPTIONS'], // allow preflight
+  origin: function(origin, callback){
+    if(!origin) return callback(null, true); // allow server-to-server requests
+    if(allowedOrigins.indexOf(origin) === -1){
+      const msg = `CORS policy: ${origin} not allowed`;
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  },
+  credentials: true,
+  methods: ['GET','POST','PUT','DELETE','OPTIONS'],
+}));
+
+// Handle preflight OPTIONS requests
+app.options('*', cors({
+  origin: allowedOrigins,
+  credentials: true,
+  methods: ['GET','POST','PUT','DELETE','OPTIONS'],
 }));
 app.use(express.json());
 
