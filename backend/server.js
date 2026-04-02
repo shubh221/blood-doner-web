@@ -12,8 +12,9 @@ const app = express();
 // app.use(cors());
 // const cors = require("cors");
 app.use(cors({
-  origin: "https://blood-doner-web.vercel.app",
-  credentials: true
+  origin: "https://blood-doner-web.vercel.app", // your frontend
+  credentials: true, // allow cookies/auth headers
+  methods: ['GET','POST','PUT','DELETE','OPTIONS'], // allow preflight
 }));
 app.use(express.json());
 
