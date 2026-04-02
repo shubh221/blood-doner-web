@@ -9,7 +9,12 @@ const donorRoutes = require('./routes/donorRoutes');
 const app = express();
 
 // Middleware
-app.use(cors());
+// app.use(cors());
+// const cors = require("cors");
+app.use(cors({
+  origin: "https://blood-doner-web.vercel.app",
+  credentials: true
+}));
 app.use(express.json());
 
 // Routes
